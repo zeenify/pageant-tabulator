@@ -52,6 +52,8 @@ export default function Edit({ criteria, category }) {
                                 <label className="block text-sm font-medium mb-2 transition-colors">Criteria Name</label>
                                 <input 
                                     type="text" 
+                                    required              // <-- Added
+                                    maxLength="100"       // <-- Added
                                     value={data.criteria_name}
                                     onChange={(e) => setData('criteria_name', e.target.value)}
                                     className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
@@ -64,6 +66,8 @@ export default function Edit({ criteria, category }) {
                                 <label className="block text-sm font-medium mb-2 transition-colors">Percentage (%)</label>
                                 <input 
                                     type="number" 
+                                    required              // <-- Added
+                                    min="0"               
                                     step="0.01"
                                     value={data.percentage}
                                     onChange={(e) => setData('percentage', e.target.value)}
@@ -78,6 +82,8 @@ export default function Edit({ criteria, category }) {
                                     <label className="block text-sm font-medium mb-2 transition-colors">Min Score</label>
                                     <input 
                                         type="number" 
+                                        required              // <-- Added
+                                        min="1"               // <-- Added
                                         value={data.min_score}
                                         onChange={(e) => setData('min_score', e.target.value)}
                                         className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"

@@ -45,6 +45,8 @@ export default function Edit({ category }) {
                             <label className="block text-sm font-medium mb-2 transition-colors">Category Name</label>
                             <input 
                                 type="text" 
+                                required              // <-- Added this
+                                maxLength="100"       // <-- Added this
                                 value={data.category_name}
                                 onChange={(e) => setData('category_name', e.target.value)}
                                 className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"

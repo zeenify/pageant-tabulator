@@ -23,8 +23,17 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         // 1. Validate: Make sure the user actually typed a name
-        $request->validate([
-            'category_name' => 'required|string|max:255',
+       $validatedData = $request->validate([
+            'category_name' =>[
+                'required', 
+                'string', 
+                'min:2',          // Must be at least 2 characters long
+                'max:100',        // Cannot be longer than 100 characters
+                'regex:/^[a-zA-Z0-9\s\-]+$/' // ONLY allows letters, numbers, spaces, and hyphens (No weird symbols!)
+            ],
+        ],[
+            // Custom Error Message if they try to use weird symbols
+            'category_name.regex' => 'The category name can only contain letters, numbers, spaces, and hyphens.'
         ]);
 
         // 2. Save it to the database! 
@@ -50,13 +59,22 @@ class CategoryController extends Controller
     // 2. Save the updated changes to the database
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'category_name' => 'required|string|max:255',
+        // ADDED STRICT VALIDATION HERE TOO!
+        $validatedData = $request->validate([
+            'category_name' =>[
+                'required', 
+                'string', 
+                'min:2',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s\-]+$/'
+            ],
+        ],[
+            'category_name.regex' => 'The category name can only contain letters, numbers, spaces, and hyphens.'
         ]);
 
         $category = Category::findOrFail($id);
         $category->update([
-            'name' => $request->category_name
+            'name' => $validatedData['category_name'] // Use the cleaned data!
         ]);
 
         // Go back to the main categories list

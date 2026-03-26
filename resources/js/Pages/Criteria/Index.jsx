@@ -126,7 +126,9 @@ export default function Index({ category, criteria_list }) {
                         <div className="flex-1 min-w-[180px]">
                             <label className="block text-sm font-medium mb-1.5 transition-colors">Criteria Name</label>
                             <input 
-                                type="text" 
+                                type="text"
+                                required              // <-- Added
+                                maxLength="100"       // <-- Added
                                 value={data.criteria_name}
                                 onChange={e => setData('criteria_name', e.target.value)}
                                 placeholder="e.g., Stage Presence"
@@ -140,6 +142,9 @@ export default function Index({ category, criteria_list }) {
                             <label className="block text-sm font-medium mb-1.5 transition-colors">%</label>
                             <input 
                                 type="number" 
+                                required              // <-- Added
+                                min="0"               // <-- Added (No negative percentages)
+                                max="100"             // <-- Added (Cannot be over 100%)
                                 step="0.01"
                                 value={data.percentage}
                                 onChange={e => setData('percentage', e.target.value)}
@@ -154,6 +159,8 @@ export default function Index({ category, criteria_list }) {
                             <label className="block text-sm font-medium mb-1.5 transition-colors">Min</label>
                             <input 
                                 type="number" 
+                                required              // <-- Added
+                                min="0"               // <-- Added
                                 value={data.min_score}
                                 onChange={e => setData('min_score', e.target.value)}
                                 placeholder="0"
@@ -167,6 +174,8 @@ export default function Index({ category, criteria_list }) {
                             <label className="block text-sm font-medium mb-1.5 transition-colors">Max</label>
                             <input 
                                 type="number" 
+                                required              // <-- Added 
+                                min="1"               // <-- Added
                                 value={data.max_score}
                                 onChange={e => setData('max_score', e.target.value)}
                                 placeholder="100"

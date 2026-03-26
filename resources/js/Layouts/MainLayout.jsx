@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Home } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
-// The 'children' prop is the magic part. It represents whatever page is currently inside the frame!
 export default function MainLayout({ children }) {
-    // 1. All our Dark Mode logic lives here globally now!
-    const[isDarkMode, setIsDarkMode] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(false);
 
     useEffect(() => {
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -14,7 +13,7 @@ export default function MainLayout({ children }) {
             setIsDarkMode(false);
             document.documentElement.classList.remove('dark');
         }
-    },[]);
+    },[ ] );
 
     const toggleTheme = () => {
         if (isDarkMode) {
@@ -32,6 +31,14 @@ export default function MainLayout({ children }) {
         <div className="bg-slate-50 dark:bg-slate-900 min-h-screen py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-200 text-slate-900 dark:text-slate-100">
             <div className="max-w-6xl mx-auto relative">
                 
+                {/* GLOBAL Dashboard Home Button (NEW) */}
+                <div className="absolute top-0 left-0 z-10">
+                    <Link href="/" className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg text-sm p-2 transition-colors font-medium">
+                        <Home className="w-5 h-5" />
+                        <span className="hidden sm:inline">Dashboard</span>
+                    </Link>
+                </div>
+
                 {/* GLOBAL Theme Toggle Button */}
                 <div className="absolute top-0 right-0 z-10">
                     <button onClick={toggleTheme} type="button" className="text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg text-sm p-2 transition-colors">
@@ -39,8 +46,10 @@ export default function MainLayout({ children }) {
                     </button>
                 </div>
 
-                {/* This is where your page content will automatically be injected! */}
-                {children}
+                {/* Added pt-12 (padding-top) so the absolute buttons don't cover your page headers! */}
+                <div className="pt-12">
+                    {children}
+                </div>
 
             </div>
         </div>

@@ -124,7 +124,9 @@ export default function Index({ categories }) {
                             <div className="flex-1 w-full">
                                 <label className="block text-sm font-medium mb-1.5 transition-colors">Category Name</label>
                                 <input 
-                                    type="text" 
+                                    type="text"
+                                    maxLength="100"
+                                    required
                                     value={data.category_name} // 1. Bind to React memory
                                     onChange={(e) => setData('category_name', e.target.value)} // 2. Update memory as you type
                                     placeholder="Enter new category name..."

@@ -10,12 +10,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\JudgeController;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return Inertia::render('Welcome');
 });
 
 Route::get('/dashboard', function () {
@@ -58,5 +53,15 @@ Route::delete('/judges/{id}', [JudgeController::class, 'destroy']);
 Route::get('/judges/{id}/edit',[JudgeController::class, 'edit']);
 // Receive the updated Judge data
 Route::put('/judges/{id}',[JudgeController::class, 'update']);
+
+use App\Http\Controllers\ContestantController;
+
+// Contestants Routes
+Route::get('/contestants',[ContestantController::class, 'index']);
+Route::post('/contestants',[ContestantController::class, 'store']);
+Route::get('/contestants/{id}/edit',[ContestantController::class, 'edit']);
+Route::put('/contestants/{id}', [ContestantController::class, 'update']);
+Route::patch('/contestants/{id}/status/{status}',[ContestantController::class, 'updateStatus']);
+Route::delete('/contestants/{id}', [ContestantController::class, 'destroy']);
 
 require __DIR__.'/auth.php';
