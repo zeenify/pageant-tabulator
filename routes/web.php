@@ -8,6 +8,8 @@ use Inertia\Inertia;
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\JudgeController;
+use App\Http\Controllers\JudgeAuthController;
+use App\Http\Controllers\ScoreController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -63,5 +65,20 @@ Route::get('/contestants/{id}/edit',[ContestantController::class, 'edit']);
 Route::put('/contestants/{id}', [ContestantController::class, 'update']);
 Route::patch('/contestants/{id}/status/{status}',[ContestantController::class, 'updateStatus']);
 Route::delete('/contestants/{id}', [ContestantController::class, 'destroy']);
+
+// Activate a category for the judges
+Route::post('/categories/{id}/activate',[CategoryController::class, 'activate']);
+
+// Judge Portal Routes (No admin layout, just for judges on their phones)
+Route::get('/judge/login',[JudgeAuthController::class, 'create']);
+Route::post('/judge/login', [JudgeAuthController::class, 'store']);
+Route::post('/judge/logout', [JudgeAuthController::class, 'destroy']);
+
+// Judge Score Sheet Routes
+Route::get('/score-sheet',[ScoreController::class, 'index']);
+Route::post('/score-sheet', [ScoreController::class, 'store']);
+
+// Show the Print Summary for a Category
+Route::get('/categories/{id}/summary', [CategoryController::class, 'summary']);
 
 require __DIR__.'/auth.php';

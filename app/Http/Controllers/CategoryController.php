@@ -6,19 +6,35 @@ use Illuminate\Http\Request;
 
 use App\Models\Category; // Bring in our Model
 use Inertia\Inertia;     
+use Illuminate\Support\Facades\Cache;
+
+use App\Models\Judge;
+use App\Models\Contestant;
+use App\Models\Score;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        // 1. Fetch all categories from the database
         $allCategories = Category::all();
+        
+        // Check the "sticky note" to see which category is currently active
+        $activeCategoryId = Cache::get('active_category_id');
 
-        // 2. Send them across the bridge to a React page called 'Categories/Index'
         return Inertia::render('Categories/Index',[
-            'categories' => $allCategories
+            'categories' => $allCategories,
+            'activeCategoryId' => $activeCategoryId // Pass it to React!
         ]);
     }
+
+    public function activate($id)
+    {
+        // Save it forever (until you activate a different one)
+        Cache::forever('active_category_id', $id);
+        
+        return redirect()->back();
+    }
+
 
     public function store(Request $request)
     {
@@ -89,6 +105,24 @@ class CategoryController extends Controller
 
         // Stay on the page (Inertia will remove it from the screen instantly!)
         return redirect()->back();
+    }
+
+    // 5. PRINT SUMMARY PAGE
+    public function summary($id)
+    {
+        $category = Category::findOrFail($id);
+        
+        // Gather ALL the data needed for the Master Sheet
+        $judges = Judge::orderByRaw('CAST(number AS UNSIGNED) ASC')->get();
+        $contestants = Contestant::orderByRaw('CAST(number AS UNSIGNED) ASC')->get();
+        $scores = Score::where('category_id', $id)->get();
+
+        return Inertia::render('Categories/Summary',[
+            'category' => $category,
+            'judges' => $judges,
+            'contestants' => $contestants,
+            'scores' => $scores
+        ]);
     }
 
 

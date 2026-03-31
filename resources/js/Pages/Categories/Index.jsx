@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Head, Link, useForm, router} from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Moon, Sun, Pencil, Trash2, Gem, FolderOpen, Plus, AlertTriangle, X } from 'lucide-react';
+import { Pencil, Trash2, Gem, FolderOpen, Plus, AlertTriangle, X, CheckCircle2, Printer } from 'lucide-react';
 
-export default function Index({ categories }) {
+export default function Index({ categories, activeCategoryId }) {
 
 
     // NEW: Setup the form
     const { data, setData, post, processing, reset, errors } = useForm({
         category_name: '', // This matches the name the Controller expects
     });
+
+
 
     // NEW: Memory for the Delete Modal
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -20,6 +22,11 @@ export default function Index({ categories }) {
             onSuccess: () => setShowDeleteModal(false), // Close modal when done!
         });
     };
+
+    const activateCategory = (id) => {
+        router.post(`/categories/${id}/activate`);
+    };
+
 
     // NEW: The function that runs when you click "Add Category"
     const submitCategory = (e) => {
@@ -74,31 +81,37 @@ export default function Index({ categories }) {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    {/* Edit Link (takes us to the new Edit page) */}
-                                                    <Link 
-                                                        href={`/categories/${category.id}/edit`} 
-                                                        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                                                    {/* 1. Activate Button */}
+                                                    <button 
+                                                        onClick={() => activateCategory(category.id)}
+                                                        title={activeCategoryId == category.id ? "Currently Active!" : "Activate for Judges"}
+                                                        className={`inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors ${
+                                                            activeCategoryId == category.id 
+                                                            ? 'bg-emerald-500 text-white shadow-md' // Green when active
+                                                            : 'bg-slate-100 text-slate-400 hover:bg-emerald-100 hover:text-emerald-600 dark:bg-slate-700 dark:hover:bg-emerald-900/30'
+                                                        }`}
                                                     >
+                                                        <CheckCircle2 className="w-5 h-5" />
+                                                    </button>
+
+                                                    {/* 2. Edit Button */}
+                                                    <Link href={`/categories/${category.id}/edit`} title="Edit Name" className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50">
                                                         <Pencil className="w-4 h-4" />
                                                     </Link>
                                                     
-                                                    {/* Delete Button (Opens the Modal) */}
-                                                    <button 
-                                                        onClick={() => {
-                                                            setCategoryToDelete(category);
-                                                            setShowDeleteModal(true);
-                                                        }}
-                                                        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"
-                                                    >
+                                                    {/* 3. Criteria Button */}
+                                                    <Link href={`/criteria?category_id=${category.id}`} title="Manage Criteria" className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/50">
+                                                        <Gem className="w-4 h-4" />
+                                                    </Link>
+
+                                                    {/* 4. Delete Button */}
+                                                    <button onClick={() => { setCategoryToDelete(category); setShowDeleteModal(true); }} title="Delete" className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50">
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
-                                                    
-                                                    {/* Add Criteria (We will build this later) */}
-                                                    <Link 
-                                                        href={`/criteria?category_id=${category.id}`} 
-                                                        className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/50"
-                                                    >
-                                                        <Gem className="w-4 h-4" />
+
+                                                    {/* 5. Print Summary Button (Will link to summary later) */}
+                                                    <Link href={`/categories/${category.id}/summary`} title="Print Summary" className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 ml-2 border border-slate-300 dark:border-slate-600">
+                                                        <Printer className="w-4 h-4" />
                                                     </Link>
                                                 </div>
                                             </td>
