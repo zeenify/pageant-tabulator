@@ -12,8 +12,9 @@ use App\Http\Controllers\JudgeAuthController;
 use App\Http\Controllers\ScoreController;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome');
+    return redirect('/categories');
 });
+
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

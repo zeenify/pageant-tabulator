@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Pencil, Trash2, Key, Users, Plus, AlertTriangle, X, RefreshCw } from 'lucide-react';
+// Notice we added ChevronRight here!
+import { Pencil, Trash2, Key, Users, Plus, AlertTriangle, X, RefreshCw, ChevronRight } from 'lucide-react';
 
 export default function Index({ judges, currentSort }) {
-    // 1. ADD FORM SETUP
     const { data, setData, post, processing, reset, errors } = useForm({
         number: '',
         name: '',
@@ -15,21 +15,17 @@ export default function Index({ judges, currentSort }) {
         post('/judges', { onSuccess: () => reset() });
     };
 
-    // 2. SORTING/FILTERING LOGIC
     const handleSortChange = (e) => {
-        // This instantly reloads the data with the new sort parameter!
         router.get('/judges', { sort: e.target.value }, { preserveState: true });
     };
 
-    // 3. DELETE MODAL STATE
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const[showDeleteModal, setShowDeleteModal] = useState(false);
     const[judgeToDelete, setJudgeToDelete] = useState(null);
 
     const confirmDelete = () => {
         router.delete(`/judges/${judgeToDelete.id}`, { onSuccess: () => setShowDeleteModal(false) });
     };
 
-    // 4. PIN GENERATION MODAL STATE
     const [showPinModal, setShowPinModal] = useState(false);
     const [judgeForPin, setJudgeForPin] = useState(null);
 
@@ -42,13 +38,19 @@ export default function Index({ judges, currentSort }) {
             <Head title="Judges" />
 
             {/* Header & Filter Row */}
-            <div className="mb-8 pr-12 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
+                    {/* BREADCRUMBS */}
+                    <nav className="flex items-center text-sm text-slate-500 dark:text-slate-400 mb-3 font-medium">
+                        <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Dashboard</Link>
+                        <ChevronRight className="w-4 h-4 mx-2 opacity-50 flex-shrink-0" />
+                        <span className="text-slate-800 dark:text-slate-200 font-semibold">Judges</span>
+                    </nav>
+
                     <h1 className="text-3xl font-bold tracking-tight transition-colors">Judges</h1>
                     <p className="mt-2 text-slate-600 dark:text-slate-400 transition-colors">Manage panel and access PINs</p>
                 </div>
 
-                {/* Filter / Sort Tool */}
                 <div className="flex flex-col">
                     <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Sort Arrangement</label>
                     <select 
@@ -67,12 +69,10 @@ export default function Index({ judges, currentSort }) {
             {/* Main Card */}
             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
                 
-                {/* Table Header */}
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
                     <h2 className="text-lg font-semibold transition-colors">Panel Roster</h2>
                 </div>
 
-                {/* Judges Table */}
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
@@ -90,14 +90,12 @@ export default function Index({ judges, currentSort }) {
                                         <td className="px-6 py-4 text-sm font-medium transition-colors">{judge.number}</td>
                                         <td className="px-6 py-4 text-sm transition-colors">{judge.name}</td>
                                         <td className="px-6 py-4 text-sm text-center">
-                                            {/* PIN Display Badge */}
                                             <span className="inline-block px-3 py-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-md font-mono text-lg tracking-widest text-slate-800 dark:text-slate-200">
                                                 {judge.pin}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-center gap-2">
-                                                {/* Edit Button */}
                                                 <Link 
                                                     href={`/judges/${judge.id}/edit`}
                                                     className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50"
@@ -105,7 +103,6 @@ export default function Index({ judges, currentSort }) {
                                                     <Pencil className="w-4 h-4" />
                                                 </Link>
 
-                                                {/* Generate New PIN Button */}
                                                 <button 
                                                     onClick={() => {
                                                         setJudgeForPin(judge);
@@ -117,7 +114,6 @@ export default function Index({ judges, currentSort }) {
                                                     <Key className="w-4 h-4" />
                                                 </button>
                                                 
-                                                {/* Delete Button */}
                                                 <button 
                                                     onClick={() => {
                                                         setJudgeToDelete(judge);
@@ -145,16 +141,16 @@ export default function Index({ judges, currentSort }) {
                     </table>
                 </div>
 
-                {/* Add Judge Form */}
                 <div className="px-6 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 transition-colors">
                     <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 uppercase tracking-wider">Add New Judge</h3>
                     <form className="flex flex-wrap items-end gap-3 sm:gap-4" onSubmit={submitJudge}>
                         
-                        {/* Number Input */}
                         <div className="w-24">
                             <label className="block text-sm font-medium mb-1.5 transition-colors">No.</label>
                             <input 
                                 type="text" 
+                                required        // <-- Added Security
+                                maxLength="50"  // <-- Added Security
                                 value={data.number} 
                                 onChange={(e) => setData('number', e.target.value)} 
                                 placeholder="e.g., 1"
@@ -163,11 +159,12 @@ export default function Index({ judges, currentSort }) {
                             {errors.number && <div className="text-red-500 text-xs mt-1">{errors.number}</div>}
                         </div>
 
-                        {/* Name Input */}
                         <div className="flex-1 min-w-[200px]">
                             <label className="block text-sm font-medium mb-1.5 transition-colors">Judge Name</label>
                             <input 
                                 type="text" 
+                                required         // <-- Added Security
+                                maxLength="100"  // <-- Added Security
                                 value={data.name} 
                                 onChange={(e) => setData('name', e.target.value)} 
                                 placeholder="Enter judge name..."
@@ -176,7 +173,6 @@ export default function Index({ judges, currentSort }) {
                             {errors.name && <div className="text-red-500 text-xs mt-1">{errors.name}</div>}
                         </div>
                         
-                        {/* Add Button */}
                         <div className="w-32 flex-shrink-0">
                             <button 
                                 type="submit" 
@@ -190,8 +186,6 @@ export default function Index({ judges, currentSort }) {
                     </form>
                 </div>
             </div>
-
-            {/* --- MODALS --- */}
 
             {/* Delete Modal */}
             {showDeleteModal && (
@@ -249,7 +243,6 @@ export default function Index({ judges, currentSort }) {
                     </div>
                 </div>
             )}
-
         </MainLayout>
     );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Moon, Sun, Save, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Moon, Sun, Save, ArrowLeft, AlertCircle, ChevronRight } from 'lucide-react';
 import MainLayout from '@/Layouts/MainLayout';
 
 // Notice we receive the 'category' object that our Chef (Controller) sent us!
@@ -25,9 +25,16 @@ export default function Edit({ category }) {
         <MainLayout>
             <Head title={`Edit Category - ${category.name}`} />
 
-           
+            <div className="max-w-2xl mx-auto relative">
                 
-              
+                {/* BREADCRUMBS */}
+                <nav className="flex items-center text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
+                    <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Dashboard</Link>
+                    <ChevronRight className="w-4 h-4 mx-2 opacity-50 flex-shrink-0" />
+                    <Link href="/categories" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Categories</Link>
+                    <ChevronRight className="w-4 h-4 mx-2 opacity-50 flex-shrink-0" />
+                    <span className="text-slate-800 dark:text-slate-200 font-semibold">Edit Category</span>
+                </nav>
 
                 {/* Page Header */}
                 <div className="mb-8 pr-12">
@@ -67,6 +74,7 @@ export default function Edit({ category }) {
                         </div>
                     </form>
                 </div>
+            </div>
 
         </MainLayout>
     );

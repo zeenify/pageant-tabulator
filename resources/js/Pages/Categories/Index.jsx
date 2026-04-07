@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, useForm, router} from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Pencil, Trash2, Gem, FolderOpen, Plus, AlertTriangle, X, CheckCircle2, Printer } from 'lucide-react';
+import { Pencil, Trash2, Gem, FolderOpen, Plus, AlertTriangle, X, CheckCircle2, Printer, ChevronRight } from 'lucide-react';
 
 export default function Index({ categories, activeCategoryId }) {
 
@@ -44,8 +44,13 @@ export default function Index({ categories, activeCategoryId }) {
 
 
                 
-                {/* Page Header */}
+                {/* Page Header & Breadcrumbs */}
                 <div className="mb-8 pr-12">
+                    <nav className="flex items-center text-sm text-slate-500 dark:text-slate-400 mb-3 font-medium">
+                        <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Dashboard</Link>
+                        <ChevronRight className="w-4 h-4 mx-2 opacity-50 flex-shrink-0" />
+                        <span className="text-slate-800 dark:text-slate-200 font-semibold">Categories</span>
+                    </nav>
                     <h1 className="text-3xl font-bold tracking-tight transition-colors">Categories</h1>
                     <p className="mt-2 text-slate-600 dark:text-slate-400 transition-colors">Manage pageant scoring categories and their criteria</p>
                 </div>

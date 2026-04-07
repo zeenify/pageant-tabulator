@@ -18,7 +18,8 @@ class JudgeAuthController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'pin' => 'required|string|max:20'
+            'number' => 'required|string|max:50|regex:/^[a-zA-Z0-9\s\-]+$/',
+            'name' => 'required|string|max:100|regex:/^[a-zA-Z0-9\s\-]+$/',
         ]);
 
         // Search the database for a judge with this exact PIN
