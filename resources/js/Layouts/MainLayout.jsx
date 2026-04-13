@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { Moon, Sun, FolderOpen, Users, Crown, Menu, X } from 'lucide-react';
-
+import { Moon, Sun, FolderOpen, Users, Crown, Menu, X, Calendar } from 'lucide-react';
 export default function MainLayout({ children }) {
     // 1. Theme and Mobile Sidebar States
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -34,10 +33,12 @@ export default function MainLayout({ children }) {
 
     // Navigation Menu Items
     const navItems =[
+        { name: 'Events Lobby', href: '/events', icon: Calendar, activePattern: '/event' }, // NEW!
         { name: 'Categories', href: '/categories', icon: FolderOpen, activePattern: '/categor' },
         { name: 'Judges', href: '/judges', icon: Users, activePattern: '/judge' },
         { name: 'Contestants', href: '/contestants', icon: Crown, activePattern: '/contestant' },
     ];
+
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-200 text-slate-900 dark:text-slate-100 flex">

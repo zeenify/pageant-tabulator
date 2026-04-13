@@ -23,24 +23,34 @@ class ScoreController extends Controller
         }
 
         $judge = Judge::findOrFail($judgeId);
-        
-        // Read the "Sticky Note" to see which category is currently live
         $activeCategoryId = Cache::get('active_category_id');
 
-        // If you (the Admin) haven't clicked "Activate" on any category yet:
-        if (!$activeCategoryId) {
+        // Fetch the active category (if one exists)
+        $category = null;
+        if ($activeCategoryId) {
+            $category = Category::find($activeCategoryId);
+        }
+
+        // FRANCHISE SECURITY CHECK:
+        // If there is no active category, OR if the active category belongs to a DIFFERENT pageant,
+        // we show the "Waiting for Admin" screen.
+        if (!$category || $category->event_id !== $judge->event_id) {
             return Inertia::render('JudgePortal/ScoreSheet',[
                 'status' => 'waiting',
                 'judge' => $judge
             ]);
         }
 
-        // If there IS an active category, gather all the data for the matrix table!
-        $category = Category::findOrFail($activeCategoryId);
+        // If it passes the check, grab criteria for this category
         $criteria = CategoryCriteria::where('category_id', $activeCategoryId)->get();
-        $contestants = Contestant::where('status', 'Active')->orderByRaw('CAST(number AS UNSIGNED) ASC')->get();
+        
+        // Grab contestants (ONLY the ones that belong to this specific pageant!)
+        $contestants = Contestant::where('event_id', $judge->event_id)
+                                 ->where('status', 'Active')
+                                 ->orderByRaw('CAST(number AS UNSIGNED) ASC')
+                                 ->get();
 
-        // Fetch any scores this judge already saved for this category (so they don't disappear on refresh)
+        // Fetch any scores this judge already saved for this category
         $existingScores = Score::where('judge_id', $judgeId)
                                ->where('category_id', $activeCategoryId)
                                ->get();
@@ -65,14 +75,11 @@ class ScoreController extends Controller
             return redirect()->back();
         }
 
-        // The React frontend will send us a massive array of all the scores in the table
         $scores = $request->input('scores',[]);
 
-        // Loop through the table and save each box into the database
         foreach ($scores as $contestantId => $criteriaScores) {
             foreach ($criteriaScores as $criteriaId => $value) {
                 if ($value !== null && $value !== '') {
-                    // updateOrCreate means "If they already scored this, update it. If not, create it!"
                     Score::updateOrCreate([
                             'judge_id' => $judgeId,
                             'category_id' => $activeCategoryId,

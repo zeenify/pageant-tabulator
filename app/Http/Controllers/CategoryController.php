@@ -16,7 +16,9 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $allCategories = Category::all();
+        // ADDED THE FILTER! Get the Sticky Note ID, and only fetch those categories!
+        $eventId = session('active_event_id');
+        $allCategories = Category::where('event_id', $eventId)->get();
         
         // Check the "sticky note" to see which category is currently active
         $activeCategoryId = Cache::get('active_category_id');
@@ -53,13 +55,12 @@ class CategoryController extends Controller
         ]);
 
         // 2. Save it to the database! 
-        // (This works because we added $fillable in the Model earlier!)
         Category::create([
+            'event_id' => session('active_event_id'), // ADDED: Save the Sticky Note ID!
             'name' => $request->category_name
         ]);
 
         // 3. Tell the browser to just stay on the same page
-        // Inertia will automatically refresh the React data in the background!
         return redirect()->back();
     }
 
@@ -110,11 +111,12 @@ class CategoryController extends Controller
     // 5. PRINT SUMMARY PAGE
     public function summary($id)
     {
+        $eventId = session('active_event_id');
         $category = Category::findOrFail($id);
         
-        // Gather ALL the data needed for the Master Sheet
-        $judges = Judge::orderByRaw('CAST(number AS UNSIGNED) ASC')->get();
-        $contestants = Contestant::orderByRaw('CAST(number AS UNSIGNED) ASC')->get();
+        // Gather ALL the data needed for the Master Sheet (ADDED FILTERS HERE TOO!)
+        $judges = Judge::where('event_id', $eventId)->orderByRaw('CAST(number AS UNSIGNED) ASC')->get();
+        $contestants = Contestant::where('event_id', $eventId)->orderByRaw('CAST(number AS UNSIGNED) ASC')->get();
         $scores = Score::where('category_id', $id)->get();
 
         return Inertia::render('Categories/Summary',[
@@ -124,7 +126,4 @@ class CategoryController extends Controller
             'scores' => $scores
         ]);
     }
-
-
-
 }

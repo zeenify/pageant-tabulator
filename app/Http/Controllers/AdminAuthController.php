@@ -22,10 +22,10 @@ class AdminAuthController extends Controller
             // Give them the Admin VIP Pass in the session
             session(['is_admin' => true]);
             
-            return redirect('/categories');
+            // CHANGED: Go to Lobby!
+            return redirect('/events');
         }
 
-        // If wrong, send them back with an error
         return back()->withErrors([
             'username' => 'Invalid username or password.'
         ]);

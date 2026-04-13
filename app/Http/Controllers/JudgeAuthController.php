@@ -17,19 +17,22 @@ class JudgeAuthController extends Controller
     // 2. Check the PIN and log them in
     public function store(Request $request)
     {
+        // FIX 1: We only validate the PIN now! No more name/number checks here.
         $request->validate([
-            'number' => 'required|string|max:50|regex:/^[a-zA-Z0-9\s\-]+$/',
-            'name' => 'required|string|max:100|regex:/^[a-zA-Z0-9\s\-]+$/',
+            'pin' => 'required|string|size:4',
         ]);
 
         // Search the database for a judge with this exact PIN
         $judge = Judge::where('pin', $request->pin)->first();
 
         if ($judge) {
-            // If found, give them a "nametag" in the session memory
+            // Give them a "nametag" in the session memory
             session(['judge_id' => $judge->id]);
             
-            // Send them to the score sheet! (We will build this page next)
+            // FIX 2: AUTOMATIC EVENT ROUTING
+            // The system now knows exactly which pageant this judge belongs to!
+            session(['active_event_id' => $judge->event_id]);
+            
             return redirect('/score-sheet');
         }
 
@@ -42,8 +45,10 @@ class JudgeAuthController extends Controller
     // 3. Log out
     public function destroy()
     {
-        // Rip up the session nametag
+        // Rip up the session memory
         session()->forget('judge_id');
+        session()->forget('active_event_id'); // Clear the event memory too!
+        
         return redirect('/judge/login');
     }
 }

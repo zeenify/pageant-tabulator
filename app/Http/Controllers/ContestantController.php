@@ -11,7 +11,10 @@ class ContestantController extends Controller
     public function index(Request $request)
     {
         $sortBy = $request->query('sort', 'number_asc');
-        $query = Contestant::query();
+        
+        // ADDED THE FILTER! Start the query locked to the current event.
+        $eventId = session('active_event_id');
+        $query = Contestant::where('event_id', $eventId);
 
         if ($sortBy === 'number_asc') $query->orderByRaw('CAST(number AS UNSIGNED) ASC');
         if ($sortBy === 'number_desc') $query->orderByRaw('CAST(number AS UNSIGNED) DESC');
@@ -32,6 +35,7 @@ class ContestantController extends Controller
         ]);
 
         Contestant::create([
+            'event_id' => session('active_event_id'), // ADDED: Save the Sticky Note ID!
             'number' => $request->number,
             'name' => $request->name,
             'status' => 'Active', // Default status
@@ -42,7 +46,7 @@ class ContestantController extends Controller
 
     public function edit($id)
     {
-        return Inertia::render('Contestants/Edit', ['contestant' => Contestant::findOrFail($id)]);
+        return Inertia::render('Contestants/Edit',['contestant' => Contestant::findOrFail($id)]);
     }
 
     public function update(Request $request, $id)

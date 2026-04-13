@@ -14,7 +14,9 @@ class JudgeController extends Controller
         // Get the requested sort order (Default to sorting by number ascending)
         $sortBy = $request->query('sort', 'number_asc');
 
-        $query = Judge::query();
+        // ADDED THE FILTER! Start the query locked to the current event.
+        $eventId = session('active_event_id');
+        $query = Judge::where('event_id', $eventId);
 
         // Apply the filter/sort
         if ($sortBy === 'number_asc') $query->orderByRaw('CAST(number AS UNSIGNED) ASC');
@@ -40,6 +42,7 @@ class JudgeController extends Controller
         $randomPin = str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT);
 
         Judge::create([
+            'event_id' => session('active_event_id'), // ADDED: Save the Sticky Note ID!
             'number' => $request->number,
             'name' => $request->name,
             'pin' => $randomPin,

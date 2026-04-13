@@ -12,3 +12,11 @@ class Judge extends Model
     protected $fillable =['event_id', 'name', 'number', 'pin'];
 
 }
+
+
+
+
+
+
+
+

@@ -12,6 +12,8 @@ use App\Http\Controllers\JudgeAuthController;
 use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\ContestantController; // Moved this to the top with the others!
 
+use App\Http\Controllers\EventController; 
+
 // NEW: Imports for our Admin Bouncer
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Middleware\CheckAdmin;
@@ -29,9 +31,16 @@ Route::post('/admin/logout',[AdminAuthController::class, 'destroy'])->name('admi
 // ==========================================
 Route::middleware([CheckAdmin::class])->group(function () {
     
+    // CHANGED: Now kicks you to the Lobby instead of Categories
     Route::get('/', function () {
-        return redirect('/categories');
+        return redirect('/events');
     });
+
+    // NEW: Events Lobby Routes
+    Route::get('/events', [EventController::class, 'index']);
+    Route::post('/events', [EventController::class, 'store']);
+    Route::post('/events/{id}/enter',[EventController::class, 'enter']);
+    Route::delete('/events/{id}', [EventController::class, 'destroy']);
 
     // Categories
     Route::get('/categories',[CategoryController::class, 'index']);
