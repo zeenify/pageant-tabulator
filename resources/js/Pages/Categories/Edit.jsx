@@ -1,6 +1,7 @@
 import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Moon, Sun, Save, ArrowLeft, AlertCircle, ChevronRight } from 'lucide-react';
+
 import MainLayout from '@/Layouts/MainLayout';
 
 // Notice we receive the 'category' object that our Chef (Controller) sent us!

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { Head, useForm } from '@inertiajs/react';
-import { KeyRound, LogIn } from 'lucide-react';
+import { Head, useForm, Link } from '@inertiajs/react'; // <-- Added Link
+import { KeyRound, LogIn, ShieldAlert } from 'lucide-react'; // <-- Added ShieldAlert
 
 export default function Login() {
     const { data, setData, post, processing, errors } = useForm({
@@ -20,8 +20,7 @@ export default function Login() {
         <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex flex-col justify-center items-center p-4 sm:p-8 font-sans">
             <Head title="Judge Login" />
 
-            {/* THE CARD */}
-            <div className="w-full max-w-xl bg-white rounded-[2rem] shadow-2xl overflow-hidden">
+            <div className="w-full max-w-[400px] bg-white rounded-[2rem] shadow-2xl overflow-hidden">
                 
                 {/* Header Section */}
                 <div className="bg-blue-600 px-8 py-10 text-center relative overflow-hidden">
@@ -36,7 +35,7 @@ export default function Login() {
                 </div>
 
                 {/* Login Form */}
-                <div className="p-8">
+                <div className="p-8 pb-6">
                     <form onSubmit={submit} className="space-y-6">
                         <div>
                             <label className="block text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest text-center">
@@ -70,9 +69,15 @@ export default function Login() {
                     </form>
                 </div>
                 
-                {/* Footer */}
-                <div className="bg-slate-50 py-5 text-center border-t border-slate-100">
-                    <p className="text-xs font-semibold text-slate-400">Pageant Tabulator System &copy; {new Date().getFullYear()}</p>
+                {/* Footer with Switch Link */}
+                <div className="bg-slate-50 py-5 flex flex-col items-center border-t border-slate-100">
+                    <p className="text-xs font-semibold text-slate-400 mb-2">Pageant Tabulator &copy; {new Date().getFullYear()}</p>
+                    
+                    {/* SWITCH TO ADMIN PORTAL LINK */}
+                    <Link href="/admin/login" className="inline-flex items-center gap-1 text-xs font-bold text-blue-500 hover:text-blue-700 transition-colors uppercase tracking-wider">
+                        <ShieldAlert className="w-3.5 h-3.5" />
+                        Admin Access
+                    </Link>
                 </div>
 
             </div>

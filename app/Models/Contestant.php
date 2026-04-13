@@ -8,5 +8,6 @@ class Contestant extends Model
 {
     protected $table = 'contestant';
     public $timestamps = false;
-    protected $fillable = ['name', 'number', 'status'];
+    protected $fillable = ['event_id', 'name', 'number', 'status'];
+
 }

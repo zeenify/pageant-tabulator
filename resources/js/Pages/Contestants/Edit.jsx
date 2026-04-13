@@ -1,7 +1,7 @@
 import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Save, ArrowLeft } from 'lucide-react';
+import { Save, ArrowLeft, ChevronRight } from 'lucide-react';
 
 export default function Edit({ contestant }) {
     const { data, setData, put, processing, errors } = useForm({
@@ -17,16 +17,21 @@ export default function Edit({ contestant }) {
     return (
         <MainLayout>
             <Head title={`Edit Contestant - ${contestant.name}`} />
+            
             <div className="max-w-2xl mx-auto">
-                <div className="mb-6">
-                    <Link href="/contestants" className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200">
-                        <ArrowLeft className="w-4 h-4" />
-                        <span className="text-sm font-medium">Back to Contestants</span>
-                    </Link>
-                </div>
+                
+                {/* BREADCRUMBS */}
+                <nav className="flex items-center text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
+                    <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Dashboard</Link>
+                    <ChevronRight className="w-4 h-4 mx-2 opacity-50 flex-shrink-0" />
+                    <Link href="/contestants" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contestants</Link>
+                    <ChevronRight className="w-4 h-4 mx-2 opacity-50 flex-shrink-0" />
+                    <span className="text-slate-800 dark:text-slate-200 font-semibold">Edit Contestant</span>
+                </nav>
 
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold transition-colors">Edit Contestant</h1>
+                    <p className="mt-2 text-slate-600 dark:text-slate-400 transition-colors">Update candidate details</p>
                 </div>
 
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">

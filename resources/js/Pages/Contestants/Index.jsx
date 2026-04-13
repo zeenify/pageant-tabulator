@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Pencil, Trash2, Ban, UserMinus, Users, Plus, AlertTriangle, X } from 'lucide-react';
+import { Pencil, Trash2, Ban, UserMinus, Users, Plus, AlertTriangle, X, ChevronRight } from 'lucide-react';
 
 export default function Index({ contestants, currentSort }) {
     const { data, setData, post, processing, reset, errors } = useForm({
@@ -33,8 +33,16 @@ export default function Index({ contestants, currentSort }) {
         <MainLayout>
             <Head title="Contestants" />
 
+            {/* Header & Filter Row */}
             <div className="mb-8 pr-12 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
+                    {/* BREADCRUMBS */}
+                    <nav className="flex items-center text-sm text-slate-500 dark:text-slate-400 mb-3 font-medium">
+                        <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Dashboard</Link>
+                        <ChevronRight className="w-4 h-4 mx-2 opacity-50 flex-shrink-0" />
+                        <span className="text-slate-800 dark:text-slate-200 font-semibold">Contestants</span>
+                    </nav>
+
                     <h1 className="text-3xl font-bold tracking-tight transition-colors">Contestants</h1>
                     <p className="mt-2 text-slate-600 dark:text-slate-400 transition-colors">Manage contestant roster and statuses</p>
                 </div>

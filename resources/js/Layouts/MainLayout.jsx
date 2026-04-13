@@ -109,8 +109,20 @@ export default function MainLayout({ children }) {
                         <Menu className="w-6 h-6" />
                     </button>
 
-                    {/* Right Side (Theme Toggle) */}
-                    <div className="ml-auto flex items-center gap-4">
+                   {/* Right Side (Logout & Theme Toggle) */}
+                    <div className="ml-auto flex items-center gap-2 sm:gap-4">
+                        
+                        {/* LOGOUT BUTTON (NEW) */}
+                        <Link 
+                            href="/admin/logout" 
+                            method="post" 
+                            as="button"
+                            className="text-slate-500 dark:text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 rounded-lg text-sm px-3 py-2 transition-colors font-medium flex items-center gap-2"
+                        >
+                            <span className="hidden sm:inline">Log Out</span>
+                            <X className="w-5 h-5" />
+                        </Link>
+
                         <button 
                             onClick={toggleTheme} 
                             type="button" 
@@ -120,6 +132,8 @@ export default function MainLayout({ children }) {
                             {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                         </button>
                     </div>
+
+
                 </header>
 
                 {/* Page Content Injection */}

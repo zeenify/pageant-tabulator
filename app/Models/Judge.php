@@ -9,9 +9,6 @@ class Judge extends Model
     protected $table = 'judge'; 
     public $timestamps = false; 
 
-    protected $fillable =[
-        'name',
-        'number',
-        'pin'
-    ];
+    protected $fillable =['event_id', 'name', 'number', 'pin'];
+
 }
