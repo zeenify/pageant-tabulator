@@ -34,4 +34,4 @@ RUN npm install
 RUN npm run build
 
 # 9. Start the Laravel server using Render's automatic PORT
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
