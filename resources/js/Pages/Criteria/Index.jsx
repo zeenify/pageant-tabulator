@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
-import { ArrowLeft, Pencil, Trash2, ClipboardList, Plus, AlertTriangle, X } from 'lucide-react';
+import { ArrowLeft, Pencil, Trash2, ClipboardList, Plus, AlertTriangle, X, ChevronRight, PieChart } from 'lucide-react';
 
 export default function Index({ category, criteria_list }) {
-    // Form Setup (Notice we include category_id in the hidden data)
+    
+    // MATH: Calculate how much percentage is currently used and remaining
+    const currentTotal = criteria_list.reduce((sum, crit) => sum + parseFloat(crit.percentage), 0);
+    const remainingPercentage = (100 - currentTotal).toFixed(2);
+    const isFull = currentTotal >= 100;
+
     const { data, setData, post, processing, reset, errors } = useForm({
         category_id: category.id,
         criteria_name: '',
@@ -13,52 +18,73 @@ export default function Index({ category, criteria_list }) {
         max_score: '',
     });
 
-    // Delete Modal State
     const[showDeleteModal, setShowDeleteModal] = useState(false);
     const [criteriaToDelete, setCriteriaToDelete] = useState(null);
 
     const submitCriteria = (e) => {
         e.preventDefault();
-        post('/criteria', {
-            // Only reset the text boxes, keep the category_id intact!
-            onSuccess: () => reset('criteria_name', 'percentage', 'min_score', 'max_score'),
-        });
+        post('/criteria', { onSuccess: () => reset('criteria_name', 'percentage', 'min_score', 'max_score') });
     };
 
     const confirmDelete = () => {
-        router.delete(`/criteria/${criteriaToDelete.id}`, {
-            onSuccess: () => setShowDeleteModal(false),
-        });
+        router.delete(`/criteria/${criteriaToDelete.id}`, { onSuccess: () => setShowDeleteModal(false) });
     };
 
     return (
         <MainLayout>
             <Head title={`Criteria - ${category.name}`} />
 
-            {/* Back Navigation */}
-            <div className="mb-6">
-                <Link href="/categories" className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
-                    <ArrowLeft className="w-4 h-4" />
-                    <span className="text-sm font-medium">Back to Categories</span>
-                </Link>
-            </div>
+            {/* BREADCRUMBS */}
+            <nav className="flex items-center text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
+                <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Dashboard</Link>
+                <ChevronRight className="w-4 h-4 mx-2 opacity-50 flex-shrink-0" />
+                <Link href="/categories" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Categories</Link>
+                <ChevronRight className="w-4 h-4 mx-2 opacity-50 flex-shrink-0" />
+                <span className="text-slate-800 dark:text-slate-200 font-semibold">Criteria</span>
+            </nav>
 
-            {/* Page Header */}
             <div className="mb-8 pr-12">
                 <h1 className="text-3xl font-bold tracking-tight transition-colors">Category: {category.name}</h1>
                 <p className="mt-2 text-slate-600 dark:text-slate-400 transition-colors">Manage scoring criteria and weights</p>
             </div>
 
-            {/* Main Card */}
+            {/* --- NEW: ALLOCATION PROGRESS BAR --- */}
+            <div className="mb-6 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between items-end mb-2">
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-bold">
+                        <PieChart className="w-5 h-5 text-blue-500" />
+                        Criteria Allocation
+                    </div>
+                    <span className={`text-sm font-bold ${isFull ? 'text-emerald-600' : 'text-amber-600'}`}>
+                        {currentTotal.toFixed(2)}% / 100%
+                    </span>
+                </div>
+                {/* Progress Bar Track */}
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 mb-2 overflow-hidden flex">
+                    {criteria_list.map((crit, idx) => {
+                        // Alternate colors for the bar segments
+                        const colors =['bg-blue-500', 'bg-indigo-500', 'bg-sky-500', 'bg-cyan-500', 'bg-teal-500'];
+                        return (
+                            <div 
+                                key={crit.id} 
+                                style={{ width: `${crit.percentage}%` }} 
+                                className={`h-3 ${colors[idx % colors.length]} border-r border-white/20`}
+                                title={`${crit.name}: ${crit.percentage}%`}
+                            ></div>
+                        );
+                    })}
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 text-right font-medium">
+                    {isFull ? 'Allocation Complete!' : `${remainingPercentage}% remaining`}
+                </p>
+            </div>
+
             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
                 
-                {/* Table Header */}
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-center">
-                    <h2 className="text-lg font-semibold transition-colors">Criteria</h2>
-                    <span className="text-sm text-slate-500 dark:text-slate-400">{criteria_list.length} total</span>
+                    <h2 className="text-lg font-semibold transition-colors">Criteria List</h2>
                 </div>
 
-                {/* Criteria Table */}
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
@@ -75,26 +101,15 @@ export default function Index({ category, criteria_list }) {
                                 criteria_list.map((criteria) => (
                                     <tr key={criteria.id} className="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                                         <td className="px-6 py-4 text-sm font-medium transition-colors align-middle">{criteria.name}</td>
-                                        <td className="px-6 py-4 text-sm text-center align-middle">{Number(criteria.percentage).toFixed(2)}%</td>
+                                        <td className="px-6 py-4 text-sm text-center align-middle font-bold text-blue-600 dark:text-blue-400">{Number(criteria.percentage).toFixed(2)}%</td>
                                         <td className="px-6 py-4 text-sm text-center align-middle">{criteria.min_score}</td>
                                         <td className="px-6 py-4 text-sm text-center align-middle">{criteria.max_score}</td>
                                         <td className="px-6 py-4 align-middle">
                                             <div className="flex items-center justify-center gap-2">
-                                                {/* Edit Link */}
-                                                <Link 
-                                                    href={`/criteria/${criteria.id}/edit`} 
-                                                    className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50"
-                                                >
+                                                <Link href={`/criteria/${criteria.id}/edit`} className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50">
                                                     <Pencil className="w-4 h-4" />
                                                 </Link>                                             
-                                                {/* Delete Button */}
-                                                <button 
-                                                    onClick={() => {
-                                                        setCriteriaToDelete(criteria);
-                                                        setShowDeleteModal(true);
-                                                    }}
-                                                    className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"
-                                                >
+                                                <button onClick={() => { setCriteriaToDelete(criteria); setShowDeleteModal(true); }} className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50">
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -119,76 +134,78 @@ export default function Index({ category, criteria_list }) {
                 <div className="px-6 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 transition-colors">
                     <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 uppercase tracking-wider">Add New Criteria</h3>
                     
-                    {/* flex-wrap and items-end perfectly aligns the boxes horizontally */}
                     <form className="flex flex-wrap items-end gap-3 sm:gap-4" onSubmit={submitCriteria}>
-                        
-                        {/* Name (Takes up all extra space, slightly smaller minimum) */}
                         <div className="flex-1 min-w-[180px]">
                             <label className="block text-sm font-medium mb-1.5 transition-colors">Criteria Name</label>
                             <input 
-                                type="text"
-                                required              // <-- Added
-                                maxLength="100"       // <-- Added
+                                type="text" required maxLength="100" disabled={isFull}
                                 value={data.criteria_name}
                                 onChange={e => setData('criteria_name', e.target.value)}
-                                placeholder="e.g., Stage Presence"
-                                className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                                placeholder={isFull ? "Category full" : "e.g., Stage Presence"}
+                                className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800"
                             />
                             {errors.criteria_name && <div className="text-red-500 text-xs mt-1">{errors.criteria_name}</div>}
                         </div>
                         
-                        {/* Percentage (Reduced to w-20 and px-2) */}
                         <div className="w-20">
                             <label className="block text-sm font-medium mb-1.5 transition-colors">%</label>
                             <input 
-                                type="number" 
-                                required              // <-- Added
-                                min="0"               // <-- Added (No negative percentages)
-                                max="100"             // <-- Added (Cannot be over 100%)
-                                step="0.01"
+                                type="number" required min="0" step="0.01" disabled={isFull}
+                                max={remainingPercentage} // SMART CAPPING!
                                 value={data.percentage}
-                                onChange={e => setData('percentage', e.target.value)}
-                                placeholder="25"
-                                className="w-full px-2 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-center"
+                                onChange={e => {
+                                    let val = e.target.value;
+                                    if (val > parseFloat(remainingPercentage)) val = remainingPercentage;
+                                    if (val < 0 && val !== '') val = 0;
+                                    setData('percentage', val);
+                                }}
+                                placeholder={remainingPercentage}
+                                className="w-full px-2 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-center disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800"
                             />
                             {errors.percentage && <div className="text-red-500 text-xs mt-1">{errors.percentage}</div>}
                         </div>
                         
-                        {/* Min Score (Reduced to w-20 and px-2) */}
                         <div className="w-20">
                             <label className="block text-sm font-medium mb-1.5 transition-colors">Min</label>
                             <input 
-                                type="number" 
-                                required              // <-- Added
-                                min="0"               // <-- Added
+                                type="number" required min="0" disabled={isFull}
                                 value={data.min_score}
                                 onChange={e => setData('min_score', e.target.value)}
                                 placeholder="0"
-                                className="w-full px-2 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-center"
+                                className="w-full px-2 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-center disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800"
                             />
                             {errors.min_score && <div className="text-red-500 text-xs mt-1">{errors.min_score}</div>}
                         </div>
                         
-                        {/* Max Score (Reduced to w-20 and px-2) */}
                         <div className="w-20">
                             <label className="block text-sm font-medium mb-1.5 transition-colors">Max</label>
                             <input 
-                                type="number" 
-                                required              // <-- Added 
-                                min="1"               // <-- Added
+                                type="number" required min="1" disabled={isFull}
                                 value={data.max_score}
-                                onChange={e => setData('max_score', e.target.value)}
+                                onChange={e => {
+                                    let val = e.target.value;
+                                    if (val > parseFloat(remainingPercentage)) val = remainingPercentage;
+                                    if (val < 0 && val !== '') val = 0;
+                                    
+                                    // NEW: Automatically sync the max_score to match the percentage!
+                                    // We use parseInt because your database max_score is a whole number (int)
+                                    setData(prevData => ({
+                                        ...prevData,
+                                        percentage: val,
+                                        max_score: val ? parseInt(val) : ''
+                                    }));
+                                }}
+
                                 placeholder="100"
-                                className="w-full px-2 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-center"
+                                className="w-full px-2 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-center disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-800"
                             />
                             {errors.max_score && <div className="text-red-500 text-xs mt-1">{errors.max_score}</div>}
                         </div>
                         
-                        {/* Add Button - Given a guaranteed width of w-32 (128px) */}
                         <div className="w-32 flex-shrink-0">
                             <button 
                                 type="submit" 
-                                disabled={processing}
+                                disabled={processing || isFull}
                                 className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg shadow-sm transition-all h-[44px] whitespace-nowrap disabled:opacity-50"
                             >
                                 <Plus className="w-4 h-4" />
@@ -199,7 +216,7 @@ export default function Index({ category, criteria_list }) {
                 </div>
             </div>
 
-            {/* Delete Confirmation Modal */}
+            {/* Delete Modal */}
             {showDeleteModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-900/80 backdrop-blur-sm transition-all">
                     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-red-200 dark:border-red-900/50 w-full max-w-md mx-4 overflow-hidden">
@@ -209,24 +226,16 @@ export default function Index({ category, criteria_list }) {
                             </div>
                             <h3 className="text-lg font-semibold text-red-800 dark:text-red-400">Delete Criteria?</h3>
                         </div>
-                        
                         <div className="p-6">
                             <p className="text-slate-600 dark:text-slate-400 mb-4">You are about to permanently delete:</p>
                             <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg p-4 mb-6">
                                 <p className="text-lg font-semibold text-slate-900 dark:text-white">{criteriaToDelete?.name}</p>
                             </div>
-                            
                             <div className="flex items-center gap-3">
-                                <button 
-                                    onClick={confirmDelete}
-                                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-sm transition-all"
-                                >
-                                    <Trash2 className="w-4 h-4" /> Yes, Delete
+                                <button onClick={confirmDelete} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all">
+                                    <Trash2 className="w-4 h-4" /> Delete
                                 </button>
-                                <button 
-                                    onClick={() => setShowDeleteModal(false)}
-                                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-lg transition-all"
-                                >
+                                <button onClick={() => setShowDeleteModal(false)} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-lg transition-all">
                                     <X className="w-4 h-4" /> Cancel
                                 </button>
                             </div>

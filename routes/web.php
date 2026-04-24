@@ -13,6 +13,7 @@ use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\ContestantController; // Moved this to the top with the others!
 
 use App\Http\Controllers\EventController; 
+use App\Http\Controllers\ResultController;
 
 // NEW: Imports for our Admin Bouncer
 use App\Http\Controllers\AdminAuthController;
@@ -42,6 +43,13 @@ Route::middleware([CheckAdmin::class])->group(function () {
     Route::post('/events/{id}/enter',[EventController::class, 'enter']);
     Route::delete('/events/{id}', [EventController::class, 'destroy']);
 
+    Route::get('/debug-session', function () {
+        return session()->all();
+    });
+
+    Route::get('/results', [ResultController::class, 'index']);
+    Route::get('/results/print', [ResultController::class, 'print']);
+
     // Categories
     Route::get('/categories',[CategoryController::class, 'index']);
     Route::post('/categories',[CategoryController::class, 'store']);
@@ -50,6 +58,8 @@ Route::middleware([CheckAdmin::class])->group(function () {
     Route::delete('/categories/{id}',[CategoryController::class, 'destroy']);
     Route::post('/categories/{id}/activate',[CategoryController::class, 'activate']);
     Route::get('/categories/{id}/summary', [CategoryController::class, 'summary']);
+    Route::get('/categories/{id}/print', [CategoryController::class, 'print']);
+
 
     // Criteria
     Route::get('/criteria', [CriteriaController::class, 'index']);
@@ -65,6 +75,8 @@ Route::middleware([CheckAdmin::class])->group(function () {
     Route::delete('/judges/{id}', [JudgeController::class, 'destroy']);
     Route::get('/judges/{id}/edit',[JudgeController::class, 'edit']);
     Route::put('/judges/{id}',[JudgeController::class, 'update']);
+    Route::get('/judges/{id}/print',[JudgeController::class, 'print']);
+
 
     // Contestants
     Route::get('/contestants',[ContestantController::class, 'index']);

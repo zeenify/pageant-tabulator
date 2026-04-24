@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { Head, useForm, Link } from '@inertiajs/react'; // <-- Added Link here
-import { Lock, LogIn, Users } from 'lucide-react';       // <-- Added Users icon
+import { Head, useForm, Link } from '@inertiajs/react';
+import { Lock, LogIn, Users } from 'lucide-react';
 
 export default function AdminLogin() {
     const { data, setData, post, processing, errors } = useForm({
-        username: '',
+        name: '', // Changed to 'name' to match the database column
         password: '',
     });
 
@@ -33,19 +33,19 @@ export default function AdminLogin() {
 
                 <div className="p-8">
                     <form onSubmit={submit} className="space-y-5">
-                        {errors.username && (
+                        {errors.name && (
                             <p className="text-red-600 text-center text-sm font-semibold bg-red-50 py-2.5 rounded-xl border border-red-100">
-                                {errors.username}
+                                {errors.name}
                             </p>
                         )}
                         
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-widest">Username</label>
+                            <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-widest">Username / Name</label>
                             <input
                                 type="text"
                                 required
-                                value={data.username}
-                                onChange={(e) => setData('username', e.target.value)}
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
                                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 outline-none"
                             />
                         </div>

@@ -4,37 +4,44 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class AdminAuthController extends Controller
 {
-    // 1. Show the Admin Login Page
     public function create()
     {
         return Inertia::render('Admin/Login');
     }
 
-    // 2. Check the Hardcoded Credentials
     public function store(Request $request)
     {
-        // HARDCODED CHECK: admin / admin
-        if ($request->username === 'admin' && $request->password === 'admin') {
-            
-            // Give them the Admin VIP Pass in the session
-            session(['is_admin' => true]);
-            
-            // CHANGED: Go to Lobby!
-            return redirect('/events');
+        // 1. Validate that they typed a name and password
+        $credentials = $request->validate([
+            'name' => ['required', 'string'],
+            'password' => ['required'],
+        ]);
+
+        // 2. Auth::attempt securely encrypts the password and checks the 'users' table!
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('/events');
         }
 
+        // 3. If wrong, send them back
         return back()->withErrors([
-            'username' => 'Invalid username or password.'
+            'name' => 'The provided username/password do not match our records.',
         ]);
     }
 
-    // 3. Log Out
-    public function destroy()
+    public function destroy(Request $request)
     {
-        session()->forget('is_admin');
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Clear the pageant sticky notes
+        session()->forget(['active_event_id', 'active_event_name']);
+
         return redirect('/admin/login');
     }
 }

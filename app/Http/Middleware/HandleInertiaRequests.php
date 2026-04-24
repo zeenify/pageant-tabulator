@@ -31,9 +31,19 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'auth' => [
+            'auth' =>[
                 'user' => $request->user(),
+            ],
+            // THIS IS THE MISSING PIECE!
+            // It tells Laravel to send the session variable to every React page.
+            'active_event_name' => \App\Models\Event::find($request->session()->get('active_event_id'))?->name,
+            
+            // (If you also added the flash messages earlier, they should be here too)
+            'flash' =>[
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
             ],
         ];
     }
+
 }

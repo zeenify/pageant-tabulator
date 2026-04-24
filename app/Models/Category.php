@@ -10,6 +10,6 @@ class Category extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['event_id', 'name']; 
+    protected $fillable =['event_id', 'name', 'is_minor'];
 
 }

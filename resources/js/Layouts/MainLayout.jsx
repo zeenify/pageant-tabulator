@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { Moon, Sun, FolderOpen, Users, Crown, Menu, X, Calendar } from 'lucide-react';
+import { Moon, Sun, FolderOpen, Users, Crown, Menu, X, Calendar, Home, Trophy } from 'lucide-react';
 export default function MainLayout({ children }) {
     // 1. Theme and Mobile Sidebar States
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
     // Inertia's usePage gives us the current URL so we can highlight the active menu item!
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const { active_event_name } = props;
 
     useEffect(() => {
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -37,7 +38,10 @@ export default function MainLayout({ children }) {
         { name: 'Categories', href: '/categories', icon: FolderOpen, activePattern: '/categor' },
         { name: 'Judges', href: '/judges', icon: Users, activePattern: '/judge' },
         { name: 'Contestants', href: '/contestants', icon: Crown, activePattern: '/contestant' },
+        { name: 'Overall Results', href: '/results', icon: Trophy, activePattern: '/results' },
     ];
+    
+    console.log('active_event_name:', active_event_name);
 
 
     return (
@@ -50,6 +54,7 @@ export default function MainLayout({ children }) {
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
+            
 
             {/* SIDEBAR */}
             <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -102,18 +107,26 @@ export default function MainLayout({ children }) {
                 {/* Top Navigation Bar */}
                 <header className="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-4 sm:px-6 lg:px-8 transition-colors sticky top-0 z-30">
                     
-                    {/* Mobile Hamburger Menu */}
-                    <button 
-                        onClick={() => setIsSidebarOpen(true)}
-                        className="lg:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 focus:outline-none"
-                    >
-                        <Menu className="w-6 h-6" />
-                    </button>
+                    <div className="flex items-center gap-4">
+                        {/* Mobile Hamburger Menu */}
+                        <button 
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="lg:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 focus:outline-none"
+                        >
+                            <Menu className="w-6 h-6" />
+                        </button>
 
-                   {/* Right Side (Logout & Theme Toggle) */}
+                        {/* ACTIVE EVENT BADGE */}
+                        {active_event_name && (
+                            <div className="hidden sm:flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-4 py-1.5 rounded-full text-sm font-bold border border-blue-200 dark:border-blue-800">
+                                <Crown className="w-4 h-4" />
+                                {active_event_name}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Right Side (Logout & Theme Toggle) */}
                     <div className="ml-auto flex items-center gap-2 sm:gap-4">
-                        
-                        {/* LOGOUT BUTTON (NEW) */}
                         <Link 
                             href="/admin/logout" 
                             method="post" 
@@ -133,9 +146,12 @@ export default function MainLayout({ children }) {
                             {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                         </button>
                     </div>
-
-
                 </header>
+
+
+
+
+
 
                 {/* Page Content Injection */}
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full relative">

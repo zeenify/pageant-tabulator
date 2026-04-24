@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Judge;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+
+use App\Models\Judge;
+use App\Models\Category;
+use App\Models\CategoryCriteria;
+use App\Models\Contestant;
+use App\Models\Score;
 
 class JudgeController extends Controller
 {
@@ -98,5 +103,27 @@ class JudgeController extends Controller
         ]);
 
         return redirect('/judges');
+    }
+    // Paste this right before the last closing bracket "}" of the JudgeController
+    public function print($id)
+    {
+        $eventId = session('active_event_id');
+        $judge = Judge::findOrFail($id);
+        
+        // Fetch all the required data for this specific event
+        $categories = Category::where('event_id', $eventId)->get();
+        $criteria = CategoryCriteria::whereIn('category_id', $categories->pluck('id'))->get();
+        $contestants = Contestant::where('event_id', $eventId)->orderByRaw('CAST(number AS UNSIGNED) ASC')->get();
+        
+        // Fetch ONLY the scores given by THIS specific judge
+        $scores = Score::where('judge_id', $id)->get();
+
+        return Inertia::render('Judges/Print',[
+            'judge' => $judge,
+            'categories' => $categories,
+            'criteria' => $criteria,
+            'contestants' => $contestants,
+            'scores' => $scores
+        ]);
     }
 }

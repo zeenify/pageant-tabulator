@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
-import { Pencil, Trash2, Ban, UserMinus, Users, Plus, AlertTriangle, X, ChevronRight } from 'lucide-react';
+import { Pencil, Trash2, Ban, UserMinus, Users, Plus, AlertTriangle, X, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 export default function Index({ contestants, currentSort }) {
     const { data, setData, post, processing, reset, errors } = useForm({
@@ -93,15 +93,27 @@ export default function Index({ contestants, currentSort }) {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Link href={`/contestants/${c.id}/edit`} className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50" title="Edit">
-                                                    <Pencil className="w-4 h-4" />
-                                                </Link>
-                                                <button onClick={() => changeStatus(c.id, 'Eliminated')} className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50" title="Eliminate">
-                                                    <UserMinus className="w-4 h-4" />
-                                                </button>
-                                                <button onClick={() => changeStatus(c.id, 'Disqualified')} className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600" title="Disqualify">
-                                                    <Ban className="w-4 h-4" />
-                                                </button>
+                                                {/* If Active, show Edit, Eliminate, Disqualify */}
+                                                {c.status === 'Active' ? (
+                                                    <>
+                                                        <Link href={`/contestants/${c.id}/edit`} className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50" title="Edit">
+                                                            <Pencil className="w-4 h-4" />
+                                                        </Link>
+                                                        <button onClick={() => changeStatus(c.id, 'Eliminated')} className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50" title="Eliminate">
+                                                            <UserMinus className="w-4 h-4" />
+                                                        </button>
+                                                        <button onClick={() => changeStatus(c.id, 'Disqualified')} className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600" title="Disqualify">
+                                                            <Ban className="w-4 h-4" />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    /* If Eliminated/Disqualified, show RESTORE button */
+                                                    <button onClick={() => changeStatus(c.id, 'Active')} className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50" title="Restore to Active">
+                                                        <CheckCircle2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
+
+                                                {/* Delete is always available */}
                                                 <button onClick={() => { setContestantToDelete(c); setShowDeleteModal(true); }} className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50" title="Delete">
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>

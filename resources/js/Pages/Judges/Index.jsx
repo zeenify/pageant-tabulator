@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import MainLayout from '@/Layouts/MainLayout';
-// Notice we added ChevronRight here!
-import { Pencil, Trash2, Key, Users, Plus, AlertTriangle, X, RefreshCw, ChevronRight } from 'lucide-react';
+import { Pencil, Trash2, Key, Users, Plus, AlertTriangle, X, RefreshCw, ChevronRight, Printer } from 'lucide-react';
 
 export default function Index({ judges, currentSort }) {
     const { data, setData, post, processing, reset, errors } = useForm({
@@ -19,15 +18,19 @@ export default function Index({ judges, currentSort }) {
         router.get('/judges', { sort: e.target.value }, { preserveState: true });
     };
 
+    // Modals State
     const[showDeleteModal, setShowDeleteModal] = useState(false);
     const[judgeToDelete, setJudgeToDelete] = useState(null);
+
+    const [showPinModal, setShowPinModal] = useState(false);
+    const[judgeForPin, setJudgeForPin] = useState(null);
+
+    const [showPrintModal, setShowPrintModal] = useState(false);
+    const[judgeToPrint, setJudgeToPrint] = useState(null);
 
     const confirmDelete = () => {
         router.delete(`/judges/${judgeToDelete.id}`, { onSuccess: () => setShowDeleteModal(false) });
     };
-
-    const [showPinModal, setShowPinModal] = useState(false);
-    const [judgeForPin, setJudgeForPin] = useState(null);
 
     const confirmGeneratePin = () => {
         router.post(`/judges/${judgeForPin.id}/generate-pin`, {}, { onSuccess: () => setShowPinModal(false) });
@@ -113,6 +116,17 @@ export default function Index({ judges, currentSort }) {
                                                 >
                                                     <Key className="w-4 h-4" />
                                                 </button>
+
+                                                <button 
+                                                    onClick={() => {
+                                                        setJudgeToPrint(judge);
+                                                        setShowPrintModal(true);
+                                                    }}
+                                                    title="Print Judge's Scores"
+                                                    className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50"
+                                                >
+                                                    <Printer className="w-4 h-4" />
+                                                </button>
                                                 
                                                 <button 
                                                     onClick={() => {
@@ -149,8 +163,8 @@ export default function Index({ judges, currentSort }) {
                             <label className="block text-sm font-medium mb-1.5 transition-colors">No.</label>
                             <input 
                                 type="text" 
-                                required        // <-- Added Security
-                                maxLength="50"  // <-- Added Security
+                                required
+                                maxLength="50"
                                 value={data.number} 
                                 onChange={(e) => setData('number', e.target.value)} 
                                 placeholder="e.g., 1"
@@ -163,8 +177,8 @@ export default function Index({ judges, currentSort }) {
                             <label className="block text-sm font-medium mb-1.5 transition-colors">Judge Name</label>
                             <input 
                                 type="text" 
-                                required         // <-- Added Security
-                                maxLength="100"  // <-- Added Security
+                                required
+                                maxLength="100"
                                 value={data.name} 
                                 onChange={(e) => setData('name', e.target.value)} 
                                 placeholder="Enter judge name..."
@@ -186,6 +200,49 @@ export default function Index({ judges, currentSort }) {
                     </form>
                 </div>
             </div>
+
+            {/* PRINT FILTER MODAL */}
+            {showPrintModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-900/80 backdrop-blur-sm transition-all">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-emerald-200 dark:border-emerald-900/50 w-full max-w-md mx-4 overflow-hidden">
+                        <div className="px-6 py-4 bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-100 dark:border-emerald-900/50 flex items-center gap-3">
+                            <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center">
+                                <Printer className="w-5 h-5 text-emerald-600 dark:text-emerald-500" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400">Print Judge's Scores</h3>
+                        </div>
+                        <div className="p-6">
+                            <p className="text-slate-600 dark:text-slate-400 mb-4">Select which segments to print for <strong className="text-slate-900 dark:text-white">Judge {judgeToPrint?.number} - {judgeToPrint?.name}</strong>:</p>
+                            
+                            <div className="flex flex-col gap-3">
+                                {/* MAIN ONLY */}
+                                <a href={`/judges/${judgeToPrint?.id}/print?filter=main`} target="_blank" rel="noopener noreferrer" onClick={() => setShowPrintModal(false)} className="inline-flex items-center justify-between px-4 py-3 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 rounded-lg font-medium transition-colors border border-blue-200 dark:border-blue-800">
+                                    Main Categories Only
+                                    <ChevronRight className="w-4 h-4" />
+                                </a>
+                                
+                                {/* MINOR ONLY */}
+                                <a href={`/judges/${judgeToPrint?.id}/print?filter=minor`} target="_blank" rel="noopener noreferrer" onClick={() => setShowPrintModal(false)} className="inline-flex items-center justify-between px-4 py-3 bg-purple-50 text-purple-700 hover:bg-purple-100 dark:bg-purple-900/20 dark:text-purple-400 dark:hover:bg-purple-900/40 rounded-lg font-medium transition-colors border border-purple-200 dark:border-purple-800">
+                                    Minor Awards Only
+                                    <ChevronRight className="w-4 h-4" />
+                                </a>
+
+                                {/* ALL SEGMENTS */}
+                                <a href={`/judges/${judgeToPrint?.id}/print?filter=all`} target="_blank" rel="noopener noreferrer" onClick={() => setShowPrintModal(false)} className="inline-flex items-center justify-between px-4 py-3 bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 rounded-lg font-medium transition-colors border border-slate-300 dark:border-slate-600">
+                                    All Categories & Awards
+                                    <ChevronRight className="w-4 h-4" />
+                                </a>
+                            </div>
+
+                            <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 text-right">
+                                <button onClick={() => setShowPrintModal(false)} className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-lg transition-all">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Delete Modal */}
             {showDeleteModal && (
